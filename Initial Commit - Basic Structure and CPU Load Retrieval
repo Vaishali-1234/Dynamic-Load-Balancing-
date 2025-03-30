@@ -1,0 +1,7 @@
+# Part 1: Initial Commit - Basic Structure and CPU Load Retrieval
+import psutil
+
+def get_cpu_load():
+    return psutil.cpu_percent(percpu=True)
+
+# --- End of Part 1 ---
