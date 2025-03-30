@@ -1,4 +1,4 @@
-# Part 2: Added Thresholds and Basic Load Balancing Logic
+# Part 2: Added Thresholds and Basic Load Balancing Logic using logs
 import psutil
 
 L_HIGH = 80
