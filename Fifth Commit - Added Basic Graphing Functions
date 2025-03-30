@@ -1,4 +1,4 @@
-# Part 5: Fifth Commit - Added Basic Graphing Functions (No Tkinter)
+# Part 5: Fifth Commit - Added Basic Graphing Functions(No Tkinter) 
 import psutil
 import numpy as np
 import matplotlib.pyplot as plt
