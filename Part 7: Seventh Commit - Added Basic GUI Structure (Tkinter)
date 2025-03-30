@@ -1,0 +1,56 @@
+# Part 7: Seventh Commit - Added Basic GUI Structure (Tkinter)
+import psutil
+import numpy as np
+import matplotlib.pyplot as plt
+import threading
+import tkinter as tk
+
+L_HIGH = 80
+L_LOW = 30
+cpu_history = []
+monitoring = False
+
+# ... (Previous functions: get_cpu_load, balance_load, predict_overload, log_action, update_cpu_graph, start_monitoring, stop_monitoring) ...
+
+root = tk.Tk()
+root.title("⚡ CPU Load Balancer 🔥")
+root.geometry("1200x800")
+root.configure(bg="#282c34")
+
+home_frame = tk.Frame(root, bg="#282c34")
+nav_frame = tk.Frame(home_frame, bg="#3e4451", height=50)
+dashboard_frame = tk.Frame(root, bg="#282c34")
+creators_frame = tk.Frame(root, bg="#282c34")
+
+def show_dashboard():
+    home_frame.pack_forget()
+    creators_frame.pack_forget()
+    dashboard_frame.pack(fill="both", expand=True)
+
+def show_home():
+    dashboard_frame.pack_forget()
+    creators_frame.pack_forget()
+    home_frame.pack(fill="both", expand=True)
+
+def show_creators():
+    dashboard_frame.pack_forget()
+    home_frame.pack_forget()
+    creators_frame.pack(fill="both", expand=True)
+
+nav_buttons = [
+    ("Home", show_home),
+    ("Dashboard", show_dashboard),
+    ("Creators", show_creators)
+]
+
+title_label = tk.Label(home_frame, text="CPU Load Balancer", fg="#61afef", bg="#282c34", font=("Segoe UI", 36, "bold"))
+subtitle_label = tk.Label(home_frame, text="Optimize Your System's Performance", fg="#abb2bf", bg="#282c34", font=("Segoe UI", 18))
+info_frame = tk.Frame(home_frame, bg="#282c34")
+left_text = tk.Label(info_frame, text="🔹 Real-time CPU monitoring\n🔹 Automatic task distribution\n🔹 Overheating prevention", font=("Segoe UI", 14), fg="#abb2bf", bg="#282c34", justify="left", wraplength=400)
+right_text = tk.Label(info_frame, text="🔹 Predictive overload detection\n🔹 Multi-core processor support\n🔹 Intuitive visual dashboard", font=("Segoe UI", 14), fg="#abb2bf", bg="#282c34", justify="right", wraplength=400)
+proceed_button = tk.Button(home_frame, text="Enter Dashboard", font=("Segoe UI", 16, "bold"), fg="white", bg="#61afef", width=20, height=2, relief="raised", borderwidth=2)
+creators_title = tk.Label(creators_frame, text="Meet the Creators", fg="#61afef", bg="#282c34", font=("Segoe UI", 24, "bold"))
+creators_info = tk.Label(creators_frame, text="""Amal Krishna: Dashboard, graphical monitoring, UI design.\nJens Mathew Thomas: Navigation, algorithm development.\nVaishali V: Content, reports, user experience.\nCo-designed the Dynamic load balancing algorithm.""", font=("Segoe UI", 14), fg="#abb2bf", bg="#282c34", justify="left", wraplength=900)
+back_button = tk.Button(dashboard_frame, text="Back to Home", font=("Segoe UI", 12, "bold"), fg="white", bg="#52596b", width=15, height=2)
+
+# --- End of Part 7 ---
