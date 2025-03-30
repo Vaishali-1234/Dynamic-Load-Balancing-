@@ -1,0 +1,18 @@
+# Part 2: Second Commit - Added Thresholds and Basic Load Balancing Logic
+import psutil
+
+L_HIGH = 80
+L_LOW = 30
+
+def get_cpu_load():
+    return psutil.cpu_percent(percpu=True)
+
+def balance_load(cpu_loads):
+    max_idx = cpu_loads.index(max(cpu_loads))
+    min_idx = cpu_loads.index(min(cpu_loads))
+    if cpu_loads[max_idx] > L_HIGH and cpu_loads[min_idx] < L_LOW:
+        print(f"⚖️ Moving tasks from CPU {max_idx} ➡ CPU {min_idx}")
+        return max_idx, min_idx
+    return None, None
+
+# --- End of Part 2 ---
