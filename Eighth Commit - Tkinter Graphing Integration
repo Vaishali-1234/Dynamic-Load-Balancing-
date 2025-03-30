@@ -1,0 +1,126 @@
+# Part 8: Eighth Commit - Tkinter Graphing Integration
+import psutil
+import numpy as np
+import matplotlib.pyplot as plt
+import threading
+import tkinter as tk
+from tkinter import ttk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+L_HIGH = 80
+L_LOW = 30
+cpu_history = []
+monitoring = False
+
+# ... (Previous functions: get_cpu_load, balance_load, predict_overload, log_action, start_monitoring, stop_monitoring) ...
+
+def update_cpu_graph():
+    global monitoring, cpu_history
+    if not monitoring:
+        return
+    cpu_loads = get_cpu_load()
+    cpu_history.append(cpu_loads)
+    if len(cpu_history) > 10:
+        cpu_history.pop(0)
+
+    max_idx, min_idx = balance_load(cpu_loads)
+    ax.clear()
+    ax.set_facecolor("#3e4451")
+    fig.patch.set_facecolor("#282c34")
+    colors = ['red' if load > L_HIGH else 'blue' if load < L_LOW else 'green' for load in cpu_loads]
+    ax.bar(range(len(cpu_loads)), cpu_loads, color=colors, edgecolor='white', linewidth=1.5, width=0.6)
+    ax.set_ylim(0, 100)
+    ax.set_ylabel("CPU Usage (%)", fontsize=14, color='white', fontname="Segoe UI")
+    ax.set_xticks(range(len(cpu_loads)))
+    ax.set_xticklabels([f"CPU {i}" for i in range(len(cpu_loads))], fontsize=12, color='white', fontname="Segoe UI")
+    if max_idx is not None:
+        ax.text(max_idx, cpu_loads[max_idx] + 5, "⬇️", ha='center', fontsize=16, color='white')
+        ax.text(min_idx, cpu_loads[min_idx] + 5, "⬆️", ha='center', fontsize=16, color='white')
+    canvas.draw()
+    root.after(2000, update_cpu_graph)
+
+root = tk.Tk()
+root.title("⚡ CPU Load Balancer 🔥")
+root.geometry("1200x800")
+root.configure(bg="#282c34")
+
+home_frame = tk.Frame(root, bg="#282c34")
+home_frame.pack(fill="both", expand=True)
+
+nav_frame = tk.Frame(home_frame, bg="#3e4451", height=50)
+nav_frame.pack(fill="x")
+
+dashboard_frame = tk.Frame(root, bg="#282c34")
+creators_frame = tk.Frame(root, bg="#282c34")
+
+def show_dashboard():
+    home_frame.pack_forget()
+    creators_frame.pack_forget()
+    dashboard_frame.pack(fill="both", expand=True)
+
+def show_home():
+    dashboard_frame.pack_forget()
+    creators_frame.pack_forget()
+    home_frame.pack(fill="both", expand=True)
+
+def show_creators():
+    dashboard_frame.pack_forget()
+    home_frame.pack_forget()
+    creators_frame.pack(fill="both", expand=True)
+
+nav_buttons = [
+    ("Home", show_home),
+    ("Dashboard", show_dashboard),
+    ("Creators", show_creators)
+]
+for text, command in nav_buttons:
+    btn = tk.Button(nav_frame, text=text, command=command, font=("Segoe UI", 12, "bold"), bg="#52596b", fg="white", relief="flat", padx=15, pady=8)
+    btn.pack(side="left", padx=5)
+
+title_label = tk.Label(home_frame, text="CPU Load Balancer", fg="#61afef", bg="#282c34", font=("Segoe UI", 36, "bold"))
+title_label.pack(pady=50)
+
+subtitle_label = tk.Label(home_frame, text="Optimize Your System's Performance", fg="#abb2bf", bg="#282c34", font=("Segoe UI", 18))
+subtitle_label.pack(pady=(0, 30))
+
+info_frame = tk.Frame(home_frame, bg="#282c34")
+info_frame.pack(fill="both", expand=True)
+
+left_text = tk.Label(info_frame, text="🔹 Real-time CPU monitoring\n🔹 Automatic task distribution\n🔹 Overheating prevention", font=("Segoe UI", 14), fg="#abb2bf", bg="#282c34", justify="left", wraplength=400)
+left_text.grid(row=0, column=0, padx=50, pady=20, sticky="w")
+
+right_text = tk.Label(info_frame, text="🔹 Predictive overload detection\n🔹 Multi-core processor support\n🔹 Intuitive visual dashboard", font=("Segoe UI", 14), fg="#abb2bf", bg="#282c34", justify="right", wraplength=400)
+right_text.grid(row=0, column=1, padx=50, pady=20, sticky="e")
+
+proceed_button = tk.Button(home_frame, text="Enter Dashboard", command=show_dashboard, font=("Segoe UI", 16, "bold"), fg="white", bg="#61afef", width=20, height=2, relief="raised", borderwidth=2)
+proceed_button.pack(pady=40)
+
+creators_title = tk.Label(creators_frame, text="Meet the Creators", fg="#61afef", bg="#282c34", font=("Segoe UI", 24, "bold"))
+creators_title.pack(pady=20)
+
+creators_text = """Amal Krishna: Dashboard, graphical monitoring, UI design.\n
+Jens Mathew Thomas: Navigation, algorithm development.\n
+Vaishali V: Content, reports, user experience.\n
+Co-designed the Dynamic load balancing algorithm."""
+creators_info = tk.Label(creators_frame, text=creators_text, font=("Segoe UI", 14), fg="#abb2bf", bg="#282c34", justify="left", wraplength=900)
+creators_info.pack(pady=20)
+
+back_button = tk.Button(dashboard_frame, text="Back to Home", command=show_home, font=("Segoe UI", 12, "bold"), fg="white", bg="#52596b", width=15, height=2)
+back_button.pack(pady=10)
+
+fig, ax = plt.subplots(figsize=(10, 5))
+fig.patch.set_facecolor("#282c34")
+ax.set_facecolor("#3e4451")
+canvas = FigureCanvasTkAgg(fig, master=dashboard_frame)
+canvas.get_tk_widget().pack(pady=20)
+
+log_text = tk.Text(dashboard_frame, height=10, width=100, bg='#3e4451', fg='#abb2bf', font=("Segoe UI", 12))
+log_text.pack(pady=10)
+
+button_frame = tk.Frame(dashboard_frame, bg='#282c34')
+button_frame.pack(pady=20)
+start_button = tk.Button(button_frame, text="Start", command=start_monitoring, font=("Segoe UI", 16, "bold"), fg="white", bg="#61afef", width=15, height=2)
+start_button.grid(row=0, column=0, padx=20)
+stop_button = tk.Button(button_frame, text="Stop", command=stop_monitoring, font=("Segoe UI", 16, "bold"), fg="white", bg="#61afef", width=15, height=2)
+stop_button.grid(row=0, column=1, padx=20)
+# --- End of Part 8 ---
