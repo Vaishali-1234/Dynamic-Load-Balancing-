@@ -1,0 +1,57 @@
+# Part 5: Fifth Commit - Added Basic Graphing Functions (No Tkinter)
+import psutil
+import numpy as np
+import matplotlib.pyplot as plt
+
+L_HIGH = 80
+L_LOW = 30
+cpu_history = []
+
+def get_cpu_load():
+    return psutil.cpu_percent(percpu=True)
+
+def balance_load(cpu_loads):
+    max_idx = predict_overload()
+    if max_idx is None:
+        max_idx = cpu_loads.index(max(cpu_loads))
+    min_idx = cpu_loads.index(min(cpu_loads))
+    if cpu_loads[max_idx] > L_HIGH and cpu_loads[min_idx] < L_LOW:
+        print(f"⚖️ Moving tasks from CPU {max_idx} ➡ CPU {min_idx}")
+        return max_idx, min_idx
+    return None, None
+
+def predict_overload():
+    global cpu_history
+    if len(cpu_history) < 5:
+        return None
+    avg_usage = np.mean(cpu_history[-5:], axis=0)
+    for i, usage in enumerate(avg_usage):
+        if usage > L_HIGH - 10:
+            return i
+    return None
+
+def log_action(message):
+    print(message)
+
+def update_cpu_graph():
+    global monitoring, cpu_history
+    if not monitoring:
+        return
+    cpu_loads = get_cpu_load()
+    cpu_history.append(cpu_loads)
+    if len(cpu_history) > 10:
+        cpu_history.pop(0)
+
+    max_idx, min_idx = balance_load(cpu_loads)
+    plt.clf()
+    colors = ['red' if load > L_HIGH else 'blue' if load < L_LOW else 'green' for load in cpu_loads]
+    plt.bar(range(len(cpu_loads)), cpu_loads, color=colors)
+    plt.ylim(0, 100)
+    plt.ylabel("CPU Usage (%)")
+    plt.xticks(range(len(cpu_loads)), [f"CPU {i}" for i in range(len(cpu_loads))])
+    if max_idx is not None:
+        plt.text(max_idx, cpu_loads[max_idx] + 5, "⬇️", ha='center')
+        plt.text(min_idx, cpu_loads[min_idx] + 5, "⬆️", ha='center')
+    plt.pause(2)
+
+# --- End of Part 5 ---
