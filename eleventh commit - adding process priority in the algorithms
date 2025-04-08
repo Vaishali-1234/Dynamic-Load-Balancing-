@@ -1,0 +1,40 @@
+def perform_load_balancing(overloaded_core, underloaded_core):
+    """Perform actual load balancing by moving processes between cores, considering priority."""
+    try:
+        # Get processes from the overloaded core
+        processes = get_core_processes(overloaded_core)
+
+        # Sort processes by their niceness value (higher niceness = lower priority)
+        def get_niceness(proc):
+            try:
+                return proc.nice()
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                return 999  # Assign a very high niceness to inaccessible processes
+
+        processes.sort(key=get_niceness)
+
+        for proc in processes:
+            if can_balance_process(proc):
+                try:
+                    priority = proc.nice()
+                    current_name = proc.name()
+                    current_pid = proc.pid
+
+                    # Basic priority consideration: Don't move very high-priority processes lightly
+                    if priority <= -10 and get_cpu_load()[overloaded_core] <= L_HIGH + 5:
+                        log_action(f"⚠️ Not moving high-priority process {current_name} (PID: {current_pid})")
+                        continue
+
+                    if set_process_affinity(current_pid, [underloaded_core]):
+                        balanced_processes[current_pid] = time.time()  # Mark as recently balanced
+                        log_action(f"🔄 Moved process {current_name} (PID: {current_pid}, Nice: {priority}) from CPU {overloaded_core} to CPU {underloaded_core}")
+                        return True
+
+                except psutil.Error as e:
+                    log_action(f"Error accessing process {proc.pid}: {e}")
+                    continue
+
+        return False
+    except Exception as e:
+        log_action(f"Error during balancing: {str(e)}")
+        return False
